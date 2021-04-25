@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+patch -p1 < x264-no-bash.patch
+
+sed -i 's/conftest.c -c/conftest.c -shared/' configure
+
+./configure \
+    --prefix=/usr \
+    --disable-swscale \
+    --enable-pic \
+    --enable-shared
+
+make
+make DESTDIR="$1" install

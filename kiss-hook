@@ -1,0 +1,101 @@
+#!/bin/sh -e
+
+flagsed() {
+    CFLAGS="$(printf %s "$CFLAGS" | sed "$1")"
+    CXXFLAGS="$(printf %s "$CXXFLAGS" | sed "$1")"
+    LDFLAGS="$(printf %s "$LDFLAGS" | sed "$1")"
+
+    export CFLAGS
+    export CXXFLAGS
+    export LDFLAGS
+}
+
+saneflags() {
+    log "$PKG" "Using sane build flags"
+
+    export CFLAGS="-O2 -pipe -march=native -mtune=native"
+    export CXXFLAGS="$CFLAGS"
+    unset LDFLAGS
+}
+
+nolto() {
+    log "$PKG" "LTO disabled"
+
+    flagsed "s/-flto=auto//"
+}
+
+addflag() {
+    log "$PKG" "Flag added: $1"
+
+    flagsed "s/$/ $1/"
+}
+
+delflag() {
+    log "$PKG" "Flag removed: $1"
+
+    flagsed "s/$1//"
+}
+
+case "$TYPE" in
+    pre-build)
+        export _CFLAGS="$CFLAGS"
+        export _CXXFLAGS="$CXXFLAGS"
+        export _LDFLAGS="$LDFLAGS"
+
+        case "$PKG" in
+            alsa-lib | efivar)
+                addflag "-flto-partition=none" ;;
+
+            curl | libressl | lua | lzo | ncurses | zlib | zstd)
+                addflag "-ffat-lto-objects" ;;
+
+            # These packages have custom configuration to enable LTO.
+            ffmpeg | gcc | python) nolto ;;
+
+            # ICE:
+            # during IPA pass: static-var
+            # lto1: internal compiler error: in lto_output_node, at lto-cgraph.c:447
+            chromium)
+                delflag "-fdevirtualize-at-ltrans"
+                nolto
+            ;;
+
+            # Custom configuration + clang.
+            firefox)
+                nolto
+                # Unsupported flags.
+                delflag "-fipa-pta"
+                delflag "-fdevirtualize-at-ltrans"
+                delflag "-fgraphite-identity"
+                delflag "-floop-nest-optimize"
+            ;;
+
+            # Broken.
+            musl | nodejs | strace | webkit2gtk) nolto ;;
+
+            # Don't bother optimising this cruft, too much breakage.
+            glibc | llvm | rust) saneflags ;;
+
+            # llvm)
+                # delflag "-fno-semantic-interposition"
+                # addflag "-ffat-lto-objects"
+            # ;;
+
+            *)
+                [ -f "$repo_dir/depends" ] && grep rust "$repo_dir/depends" > /dev/null && addflag "-ffat-lto-objects" ;;
+        esac
+    ;;
+
+    post-build)
+        : "${DEST:?DEST is unset}"
+
+        export CFLAGS="$_CFLAGS"
+        export CXXFLAGS="$_CFLAGS"
+        export LDFLAGS="$_LDFLAGS"
+
+        rm -rf  "$3/usr/share/gettext" \
+                "$3/usr/share/polkit-1" \
+                "$3/usr/share/locale" \
+                "$3/usr/share/info"
+    ;;
+esac

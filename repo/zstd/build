@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+(
+    cd programs
+
+    make zstd-pgo
+    make DESTDIR="$1" PREFIX=/usr install
+)
+
+(
+    cd lib
+
+    make
+    make DESTDIR="$1" PREFIX=/usr install
+)
