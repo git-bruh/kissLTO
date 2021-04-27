@@ -46,7 +46,7 @@ case "$TYPE" in
             alsa-lib | efivar)
                 addflag "-flto-partition=none" ;;
 
-            curl | libressl | lua | lzo | ncurses | zlib | zstd)
+            curl | libressl | llvm | lua | lzo | ncurses | zlib | zstd)
                 addflag "-ffat-lto-objects" ;;
 
             # These packages have custom configuration to enable LTO.
@@ -74,15 +74,13 @@ case "$TYPE" in
             musl | nodejs | strace | webkit2gtk) nolto ;;
 
             # Don't bother optimising this cruft, too much breakage.
-            glibc | llvm | rust) saneflags ;;
-
-            # llvm)
-                # delflag "-fno-semantic-interposition"
-                # addflag "-ffat-lto-objects"
-            # ;;
+            glibc | rust) saneflags ;;
 
             *)
-                [ -f "$repo_dir/depends" ] && grep rust "$repo_dir/depends" > /dev/null && addflag "-ffat-lto-objects" ;;
+                if grep rust "$repo_dir/depends" > /dev/null 2>&1; then
+                    addflag "-ffat-lto-objects"
+                fi
+            ;;
         esac
     ;;
 
