@@ -46,7 +46,7 @@ case "$TYPE" in
             alsa-lib | efivar)
                 addflag "-flto-partition=none" ;;
 
-            curl | libressl | llvm | lua | lzo | ncurses | zlib | zstd)
+            curl | libressl | lua | lzo | ncurses | zlib | zstd)
                 addflag "-ffat-lto-objects" ;;
 
             # These packages have custom configuration to enable LTO.
@@ -56,8 +56,8 @@ case "$TYPE" in
             # during IPA pass: static-var
             # lto1: internal compiler error: in lto_output_node, at lto-cgraph.c:447
             chromium)
-                delflag "-fdevirtualize-at-ltrans"
                 nolto
+                delflag "-fdevirtualize-at-ltrans"
             ;;
 
             # Custom configuration + clang.
@@ -68,6 +68,12 @@ case "$TYPE" in
                 delflag "-fdevirtualize-at-ltrans"
                 delflag "-fgraphite-identity"
                 delflag "-floop-nest-optimize"
+            ;;
+
+            llvm)
+                addflag "-ffat-lto-objects"
+                # clang segfaults.
+                delflag "-fno-semantic-interposition"
             ;;
 
             # Broken.
