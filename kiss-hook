@@ -50,7 +50,12 @@ case "$TYPE" in
                 addflag "-ffat-lto-objects" ;;
 
             # These packages have custom configuration to enable LTO.
-            ffmpeg | gcc | python) nolto ;;
+            ffmpeg | python) nolto ;;
+
+            gcc)
+                nolto
+                delflag "-fipa-pta"
+            ;;
 
             # ICE:
             # during IPA pass: static-var
@@ -77,7 +82,12 @@ case "$TYPE" in
             ;;
 
             # Broken.
-            musl | nodejs | strace | webkit2gtk) nolto ;;
+            nodejs | strace | webkit2gtk | xorg-server) nolto ;;
+
+            musl)
+                nolto
+                delflag "-fuse-ld=gold"
+            ;;
 
             # Don't bother optimising this cruft, too much breakage.
             glibc | rust) saneflags ;;
