@@ -46,7 +46,7 @@ case "$TYPE" in
             alsa-lib | efivar)
                 addflag "-flto-partition=none" ;;
 
-            curl | libressl | lua | lzo | ncurses | zlib | zstd)
+            curl | libressl | libtermkey | lua | lzo | ncurses | zlib | zstd)
                 addflag "-ffat-lto-objects" ;;
 
             # These packages have custom configuration to enable LTO.
@@ -56,6 +56,10 @@ case "$TYPE" in
                 nolto
                 delflag "-fipa-pta"
             ;;
+
+            # Can't build the kernel:
+            # assertion fail elflink.c:9236
+            binutils) delflag "-fipa-pta" ;;
 
             # ICE:
             # during IPA pass: static-var
