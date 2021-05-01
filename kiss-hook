@@ -86,7 +86,7 @@ case "$TYPE" in
             ;;
 
             # Broken.
-            git | github-cli | nodejs | python2 | strace | webkit2gtk | xorg-server) nolto ;;
+            git | github-cli | nodejs | python2 | ruby | strace | webkit2gtk | xorg-server) nolto ;;
 
             musl)
                 nolto
