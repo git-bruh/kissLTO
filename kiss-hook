@@ -72,6 +72,8 @@ case "$TYPE" in
             # Custom configuration + clang.
             firefox)
                 nolto
+                # We use the `lld` linker.
+                delflag "-fuse-ld=gold"
                 # Unsupported flags.
                 delflag "-fipa-pta"
                 delflag "-fdevirtualize-at-ltrans"
@@ -86,15 +88,16 @@ case "$TYPE" in
             ;;
 
             # Broken.
-            git | github-cli | nodejs | python2 | ruby | strace | webkit2gtk | xorg-server) nolto ;;
+            git | github-cli | nodejs | python2 | ruby | rust | strace | \
+            webkit2gtk | xorg-server) nolto ;;
 
             musl)
                 nolto
                 delflag "-fuse-ld=gold"
             ;;
 
-            # Don't bother optimising this cruft, too much breakage.
-            glibc | rust) saneflags ;;
+            # Too much breakage.
+            glibc) saneflags ;;
 
             *)
                 if grep rust "$repo_dir/depends" > /dev/null 2>&1; then

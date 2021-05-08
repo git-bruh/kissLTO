@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+export DESTDIR="$1"
+
+# `lld` requires "mach-o/compact_unwind_encoding.h" from `libunwind`.
+export CXXFLAGS="$CXXFLAGS -I$PWD/libunwind/include"
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -Wno-dev
+
+cmake --build   build
+cmake --install build
