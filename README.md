@@ -18,7 +18,7 @@ ln -sf /path/to/main-repo ./kiss-repo
 
 `export KISS_HOOK=/path/to/kissLTO/kiss-hook`
 
-* Modify build flags:
+* Modify build flags (Initial):
 ```sh
 export CFLAGS="-O3 -pipe -march=native -mtune=native -fno-math-errno -fdevirtualize-at-ltrans -fno-semantic-interposition -fipa-pta -flto=auto -fuse-linker-plugin"
 export CXXFLAGS="$CFLAGS"
@@ -27,11 +27,27 @@ export LDFLAGS="-Wl,-O1 -Wl,--as-needed $CFLAGS"
 
 * Re-build `gcc` and enable Graphite optimizations:
 
-`CFLAGS="$CFLAGS -fgraphite-identity -floop-nest-optimize"`
+```sh
+CFLAGS="$CFLAGS -fgraphite-identity -floop-nest-optimize"`
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="-Wl,-O1 -Wl,--as-needed $CFLAGS"
+```
 
 * Re-build `binutils` and enable the `gold` linker:
 
-`CFLAGS="$CFLAGS -fuse-ld=gold"`
+```sh
+CFLAGS="$CFLAGS -fuse-ld=gold"`
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="-Wl,-O1 -Wl,--as-needed $CFLAGS"
+```
+
+* The final shell `.profile` should look like this:
+
+```sh
+export CFLAGS="-O3 -pipe -march=native -mtune=native -fno-math-errno -fdevirtualize-at-ltrans -fno-semantic-interposition -fipa-pta -flto=auto -fuse-linker-plugin -fgraphite-identity -floop-nest-optimize -fuse-ld=gold"
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="-Wl,-O1 -Wl,--as-needed $CFLAGS"
+```
 
 * Do a full system rebuild to allow all packages to pick up the new optimizations.
 
