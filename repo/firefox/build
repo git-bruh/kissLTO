@@ -36,6 +36,9 @@ sed -i '/net\/if/d' \
 )
 export PATH="$PWD/junk/bin:$PATH"
 
+export CXXFLAGS="$CXXFLAGS -I/usr/include/c++/11.1.0"
+export CXXFLAGS="$CXXFLAGS -I/usr/include/c++/11.1.0/$(cc -dumpmachine)"
+
 # Bypass 'ccache' as it's totally useless when building
 # Firefox and only slows things down.
 export CC=/usr/bin/clang
