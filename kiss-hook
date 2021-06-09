@@ -36,6 +36,14 @@ delflag() {
     flagsed "s/$1//"
 }
 
+clang_flags() {
+    # Unsupported flags.
+    delflag "-fipa-pta"
+    delflag "-fdevirtualize-at-ltrans"
+    delflag "-fgraphite-identity"
+    delflag "-floop-nest-optimize"
+}
+
 case "$TYPE" in
     pre-build)
         export _CFLAGS="$CFLAGS"
@@ -72,13 +80,9 @@ case "$TYPE" in
             # Custom configuration + clang.
             firefox)
                 nolto
+                clang_flags
                 # We use the `lld` linker.
                 delflag "-fuse-ld=gold"
-                # Unsupported flags.
-                delflag "-fipa-pta"
-                delflag "-fdevirtualize-at-ltrans"
-                delflag "-fgraphite-identity"
-                delflag "-floop-nest-optimize"
             ;;
 
             llvm)
