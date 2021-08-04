@@ -1,3 +1,6 @@
+# Archived
+This repository has been archived as it is no longer functional with the latest versions of KISS. Due to major changes in the hook behaviour, it isn't possible for this repo to work without forking every single package that requires workarounds.
+
 # kissLTO
 
 A KISS repository for building with -O3, Graphite, and LTO optimizations, the KISS version of [gentooLTO](https://github.com/InBetweenNames/gentooLTO). This is a continuation of the [`kiss_optim` repo](https://git.ebc.li/archive/kiss_optim/) by [admicos](https://github.com/Admicos).
